@@ -1,6 +1,6 @@
 
 import { NavLink } from 'react-router-dom';
-import { Home as HomeIcon, Utensils, Calendar, ShoppingCart, ClipboardCheck } from 'lucide-react';
+import { Home as HomeIcon, Calendar, ShoppingCart, ClipboardCheck, Baby } from 'lucide-react';
 import './Navigation.css';
 
 const Navigation: React.FC = () => {
@@ -8,7 +8,7 @@ const Navigation: React.FC = () => {
   const navItems = [
     { path: '/', icon: HomeIcon, label: '探す' },
     { path: '/diagnosis', icon: ClipboardCheck, label: '診断' },
-    { path: '/suggest', icon: Utensils, label: '食材提案' },
+    { path: '/children', icon: Baby, label: 'こども' },
     { path: '/recommend', icon: Calendar, label: '献立' },
     { path: '/shopping', icon: ShoppingCart, label: '買い物' },
   ];

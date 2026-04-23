@@ -6,10 +6,12 @@ import Suggest from './pages/Suggest';
 import Recommend from './pages/Recommend';
 import Shopping from './pages/Shopping';
 import Diagnosis from './pages/Diagnosis';
+import Children from './pages/Children';
+import { ChildrenProvider } from './context/ChildrenContext';
 
 function App() {
   return (
-    <>
+    <ChildrenProvider>
       <header style={{ 
         backgroundColor: 'var(--primary)', 
         color: 'white', 
@@ -30,11 +32,12 @@ function App() {
           <Route path="/suggest" element={<Suggest />} />
           <Route path="/recommend" element={<Recommend />} />
           <Route path="/shopping" element={<Shopping />} />
+          <Route path="/children" element={<Children />} />
         </Routes>
       </main>
       
       <Navigation />
-    </>
+    </ChildrenProvider>
   );
 }
 
