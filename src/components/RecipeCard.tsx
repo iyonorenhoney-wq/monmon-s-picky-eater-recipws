@@ -48,6 +48,7 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onAddToList }) => {
         </div>
         {recipe.isMicrowaveOnly && <span className="badge" style={{ backgroundColor: '#e3f2fd', color: '#1976d2', borderColor: '#bbdefb', padding: '2px 8px' }}>レンジのみ</span>}
         {recipe.isNoKnife && <span className="badge" style={{ backgroundColor: '#f1f8e9', color: '#388e3c', borderColor: '#c8e6c9', padding: '2px 8px' }}>包丁不要</span>}
+        {recipe.isMakeAhead && <span className="badge" style={{ backgroundColor: '#ede7f6', color: '#6a1b9a', borderColor: '#ce93d8', padding: '2px 8px' }}>🥘 作り置きOK</span>}
       </div>
 
       <div style={{ backgroundColor: '#fff8e1', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>

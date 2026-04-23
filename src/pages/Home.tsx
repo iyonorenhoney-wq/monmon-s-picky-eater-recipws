@@ -30,6 +30,7 @@ const Home: React.FC = () => {
     if (activeTimeFilter === '10min') timeMatch = recipe.time <= 10;
     if (activeTimeFilter === 'microwave') timeMatch = recipe.isMicrowaveOnly;
     if (activeTimeFilter === 'noknife') timeMatch = recipe.isNoKnife;
+    if (activeTimeFilter === 'makeahead') timeMatch = recipe.isMakeAhead;
 
     let typeMatch = true;
     if (activeTypeFilter) {
@@ -100,6 +101,7 @@ const Home: React.FC = () => {
             <button className={`btn ${activeTimeFilter === '10min' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toggleTimeFilter('10min')}>10分以内</button>
             <button className={`btn ${activeTimeFilter === 'microwave' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toggleTimeFilter('microwave')}>レンチンのみ</button>
             <button className={`btn ${activeTimeFilter === 'noknife' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toggleTimeFilter('noknife')}>包丁いらず</button>
+            <button className={`btn ${activeTimeFilter === 'makeahead' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem', ...(activeTimeFilter === 'makeahead' ? { backgroundColor: '#6a1b9a', boxShadow: '0 4px 6px rgba(106,27,154,0.3)' } : { color: '#6a1b9a', borderColor: '#ce93d8' }) }} onClick={() => toggleTimeFilter('makeahead')}>🥘 作り置き</button>
           </div>
         </div>
         
