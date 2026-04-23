@@ -20,6 +20,12 @@ export interface Recipe {
   steps: string[];
   nutritionPoint: string;
   pickyPoint: string;
+  // 作り置き用
+  storageInfo?: { method: string; days: string; reheating: string };
+  // カテゴリタグ: 'ultraquick'=超時短, 'family'=家族対応
+  dishCategory?: 'normal' | 'ultraquick' | 'family';
+  // 家族対応レシピのアレンジヒント
+  familyArrangeHints?: Partial<Record<PickyType, string>>;
 }
 
 const recipes1: Recipe[] = [
@@ -384,5 +390,7 @@ import { recipes2 } from './recipes_part2';
 import { recipes3 } from './recipes_part3';
 import { recipes4 } from './recipes_part4';
 import { recipes5 } from './recipes_part5';
+import { recipes6 } from './recipes_part6';
+import { recipes7, recipes8 } from './recipes_part7';
 
-export const recipes: Recipe[] = [...recipes1, ...recipes2, ...recipes3, ...recipes4, ...recipes5];
+export const recipes: Recipe[] = [...recipes1, ...recipes2, ...recipes3, ...recipes4, ...recipes5, ...recipes6, ...recipes7, ...recipes8];

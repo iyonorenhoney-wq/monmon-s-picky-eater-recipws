@@ -31,6 +31,8 @@ const Home: React.FC = () => {
     if (activeTimeFilter === 'microwave') timeMatch = recipe.isMicrowaveOnly;
     if (activeTimeFilter === 'noknife') timeMatch = recipe.isNoKnife;
     if (activeTimeFilter === 'makeahead') timeMatch = recipe.isMakeAhead;
+    if (activeTimeFilter === 'ultraquick') timeMatch = recipe.dishCategory === 'ultraquick';
+    if (activeTimeFilter === 'family') timeMatch = recipe.dishCategory === 'family';
 
     let typeMatch = true;
     if (activeTypeFilter) {
@@ -102,6 +104,8 @@ const Home: React.FC = () => {
             <button className={`btn ${activeTimeFilter === 'microwave' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toggleTimeFilter('microwave')}>レンチンのみ</button>
             <button className={`btn ${activeTimeFilter === 'noknife' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toggleTimeFilter('noknife')}>包丁いらず</button>
             <button className={`btn ${activeTimeFilter === 'makeahead' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem', ...(activeTimeFilter === 'makeahead' ? { backgroundColor: '#6a1b9a', boxShadow: '0 4px 6px rgba(106,27,154,0.3)' } : { color: '#6a1b9a', borderColor: '#ce93d8' }) }} onClick={() => toggleTimeFilter('makeahead')}>🥘 作り置き</button>
+            <button className={`btn ${activeTimeFilter === 'ultraquick' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem', ...(activeTimeFilter === 'ultraquick' ? { backgroundColor: '#e53935', boxShadow: '0 4px 6px rgba(229,57,53,0.3)' } : { color: '#e53935', borderColor: '#ef9a9a' }) }} onClick={() => toggleTimeFilter('ultraquick')}>⚡ 超時短3分</button>
+            <button className={`btn ${activeTimeFilter === 'family' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem', ...(activeTimeFilter === 'family' ? { backgroundColor: '#00897b', boxShadow: '0 4px 6px rgba(0,137,123,0.3)' } : { color: '#00897b', borderColor: '#80cbc4' }) }} onClick={() => toggleTimeFilter('family')}>👨‍👩‍👧 家族対応</button>
           </div>
         </div>
         
