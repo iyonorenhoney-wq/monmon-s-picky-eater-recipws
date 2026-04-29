@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Clock, PlusCircle, ChevronDown, ChevronUp, Heart, Package, Users } from 'lucide-react';
 import type { Recipe, PickyType } from '../data/recipes';
 import { useFavorites } from '../context/FavoriteContext';
+import { textureTagLabels, textureTagEmojis, textureTagColors } from '../data/textureData';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -61,9 +62,27 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onAddToList }) => {
         {recipe.dishCategory === 'family' && <span className="badge" style={{ backgroundColor: '#e0f2f1', color: '#00897b', borderColor: '#80cbc4', padding: '2px 8px' }}>👨‍👩‍👧 家族対応</span>}
       </div>
 
+      {/* 形状タグ（機能⑮） */}
+      {recipe.textureTags && recipe.textureTags.length > 0 && (
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
+          {recipe.textureTags.map(tag => (
+            <span key={tag} style={{
+              backgroundColor: textureTagColors[tag] + '18',
+              color: textureTagColors[tag],
+              border: `1px solid ${textureTagColors[tag]}60`,
+              borderRadius: '12px', padding: '2px 9px',
+              fontSize: '0.75rem', fontWeight: 'bold'
+            }}>
+              {textureTagEmojis[tag]} {textureTagLabels[tag]}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div style={{ backgroundColor: '#fff8e1', padding: '12px', borderRadius: '8px', marginBottom: '12px' }}>
         <p className="text-sm"><strong>💡 偏食対策:</strong> {recipe.pickyPoint}</p>
       </div>
+
 
       {isExpanded && (
         <div style={{ borderTop: '1px dashed var(--border-color)', paddingTop: '12px', marginBottom: '12px', animation: 'fadeIn 0.3s' }}>

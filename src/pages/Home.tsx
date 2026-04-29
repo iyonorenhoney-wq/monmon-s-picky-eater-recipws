@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Clock, CheckCircle, ClipboardCheck } from 'lucide-react';
+import { Clock, CheckCircle, ClipboardCheck, Layers } from 'lucide-react';
 import RecipeCard from '../components/RecipeCard';
 import { recipes } from '../data/recipes';
-import type { PickyType } from '../data/recipes';
+import type { PickyType, TextureTag } from '../data/recipes';
 import { useShoppingList } from '../context/ShoppingContext';
 import { useFavorites } from '../context/FavoriteContext';
+import { textureTagLabels, textureTagEmojis, textureTagColors, allTextureTags } from '../data/textureData';
 
 const Home: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [activeTimeFilter, setActiveTimeFilter] = useState<string | null>(null);
   const [activeTypeFilter, setActiveTypeFilter] = useState<PickyType | null>(null);
+  const [activeTextureFilter, setActiveTextureFilter] = useState<TextureTag | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const { addRecipeIngredients } = useShoppingList();
   const { savedRecipeIds } = useFavorites();
+
 
   // Handle initial filter from URL params (for diagnosis results)
   useEffect(() => {
@@ -39,12 +42,17 @@ const Home: React.FC = () => {
       typeMatch = recipe.pickyTypes.includes(activeTypeFilter);
     }
 
+    let textureMatch = true;
+    if (activeTextureFilter) {
+      textureMatch = recipe.textureTags?.includes(activeTextureFilter) ?? false;
+    }
+
     let favoriteMatch = true;
     if (showFavoritesOnly) {
       favoriteMatch = savedRecipeIds.includes(recipe.id);
     }
 
-    return timeMatch && typeMatch && favoriteMatch;
+    return timeMatch && typeMatch && textureMatch && favoriteMatch;
   });
 
   const toggleTimeFilter = (filter: string) => {
@@ -53,6 +61,10 @@ const Home: React.FC = () => {
 
   const toggleTypeFilter = (filter: PickyType) => {
     setActiveTypeFilter(prev => prev === filter ? null : filter);
+  };
+
+  const toggleTextureFilter = (filter: TextureTag) => {
+    setActiveTextureFilter(prev => prev === filter ? null : filter);
   };
 
   return (
@@ -112,7 +124,7 @@ const Home: React.FC = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
             <CheckCircle size={16} color="var(--primary)" />
-            <span className="text-sm font-bold">偏食タイプ</span>
+            <span className="text-sm font-bold">② 偏食タイプ</span>
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             <button className={`btn ${activeTypeFilter === null ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => setActiveTypeFilter(null)}>すべて</button>
@@ -123,10 +135,69 @@ const Home: React.FC = () => {
             <button className={`btn ${activeTypeFilter === 'protein_veg_reject' ? '' : 'btn-secondary'}`} style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => toggleTypeFilter('protein_veg_reject')}>野菜・肉拒否</button>
           </div>
         </div>
+
+        {/* 形状フィルター（機能⑮） */}
+        <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px dashed #ddd' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <Layers size={16} color="#7b68ee" />
+            <span className="text-sm font-bold" style={{ color: '#5c5c99' }}>③ 食べられる形状</span>
+            <span style={{ fontSize: '0.72rem', backgroundColor: '#ede7f6', color: '#5e35b1', padding: '2px 8px', borderRadius: '8px' }}>NEW</span>
+          </div>
+          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '8px' }}>
+            「今日はこの形状なら食べてくれそう」で探せます。偏食タイプとの組み合わせも◎
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <button
+              style={{
+                padding: '6px 12px', fontSize: '0.85rem', borderRadius: '20px', cursor: 'pointer',
+                fontFamily: 'inherit', border: `2px solid ${activeTextureFilter === null ? '#7b68ee' : '#ddd'}`,
+                backgroundColor: activeTextureFilter === null ? '#ede7f6' : 'white',
+                color: activeTextureFilter === null ? '#5e35b1' : '#666', fontWeight: activeTextureFilter === null ? 'bold' : 'normal'
+              }}
+              onClick={() => setActiveTextureFilter(null)}
+            >すべて</button>
+            {allTextureTags.map(tag => {
+              const isActive = activeTextureFilter === tag;
+              return (
+                <button
+                  key={tag}
+                  onClick={() => toggleTextureFilter(tag)}
+                  style={{
+                    padding: '6px 12px', fontSize: '0.85rem', borderRadius: '20px', cursor: 'pointer',
+                    fontFamily: 'inherit', fontWeight: isActive ? 'bold' : 'normal',
+                    border: `2px solid ${textureTagColors[tag]}`,
+                    backgroundColor: isActive ? textureTagColors[tag] : 'white',
+                    color: isActive ? 'white' : textureTagColors[tag],
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {textureTagEmojis[tag]} {textureTagLabels[tag]}
+                </button>
+              );
+            })}
+          </div>
+          {activeTextureFilter && (
+            <div style={{
+              marginTop: '10px', padding: '8px 12px', backgroundColor: textureTagColors[activeTextureFilter] + '15',
+              borderRadius: '10px', border: `1px solid ${textureTagColors[activeTextureFilter]}40`,
+              fontSize: '0.8rem', color: '#444'
+            }}>
+              💡 <strong style={{ color: textureTagColors[activeTextureFilter] }}>{textureTagEmojis[activeTextureFilter]} {textureTagLabels[activeTextureFilter]}</strong>：この形状なら食べやすい子に向けたレシピだけ表示中
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mb-4 flex justify-between items-center">
         <h2 style={{ fontSize: '1.2rem' }}>🍳 見つかったレシピ ({filteredRecipes.length}件)</h2>
+        {(activeTypeFilter || activeTextureFilter) && (
+          <button
+            onClick={() => { setActiveTypeFilter(null); setActiveTextureFilter(null); }}
+            style={{ fontSize: '0.78rem', color: '#888', background: 'none', border: '1px solid #ddd', borderRadius: '8px', padding: '4px 10px', cursor: 'pointer' }}
+          >
+            フィルターをリセット
+          </button>
+        )}
       </div>
 
       {filteredRecipes.length > 0 ? (

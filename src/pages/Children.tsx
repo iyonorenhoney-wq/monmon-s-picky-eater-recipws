@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Plus, Trash2, ClipboardCheck, Utensils, Clock, Star,
-  RefreshCw, Users
+  RefreshCw, Users, Edit2, Check, X
 } from 'lucide-react';
 import { useChildren } from '../context/ChildrenContext';
 import type { PickyType } from '../data/recipes';
@@ -13,11 +13,18 @@ import {
 } from '../data/childrenData';
 import type { ChildProfile } from '../data/childrenData';
 
+const ALL_TYPES: PickyType[] = ['texture', 'visual', 'taste', 'carb_only', 'protein_veg_reject'];
+
+// 子どものactiveTypesを取得（後方互換）
+function getActiveTypes(child: ChildProfile): PickyType[] {
+  if (child.activeTypes && child.activeTypes.length > 0) return child.activeTypes;
+  return child.subType ? [child.mainType, child.subType] : [child.mainType];
+}
+
 // ─────────────────────────────────────────────
 // 献立提案ロジック（⑫）
 // ─────────────────────────────────────────────
-function getDailyMenu(mainType: PickyType, subType: PickyType | null, offset = 0) {
-  const types: PickyType[] = subType ? [mainType, subType] : [mainType];
+function getDailyMenu(types: PickyType[], offset = 0) {
   const mains = recipes.filter(r => r.dishType === 'main' && types.some(t => r.pickyTypes.includes(t)));
   const sides = recipes.filter(r => r.dishType === 'side' && types.some(t => r.pickyTypes.includes(t)));
 
@@ -80,16 +87,39 @@ const ChildCard: React.FC<{
   child: ChildProfile;
   onDelete: () => void;
   onDiagnose: () => void;
+  onUpdate: (updates: Partial<ChildProfile>) => void;
   menuOffset: number;
   onReshuffle: () => void;
-}> = ({ child, onDelete, onDiagnose, menuOffset, onReshuffle }) => {
-  const { main: mainRecipe, side: sideRecipe } = getDailyMenu(child.mainType, child.subType, menuOffset);
+}> = ({ child, onDelete, onDiagnose, onUpdate, menuOffset, onReshuffle }) => {
+  const activeTypes = getActiveTypes(child);
+  const { main: mainRecipe, side: sideRecipe } = getDailyMenu(activeTypes, menuOffset);
   const makeAhead = getMakeAheadForType(child.mainType, 2);
   const [showMakeAhead, setShowMakeAhead] = useState(false);
+  const [editingTypes, setEditingTypes] = useState(false);
+  const [draftTypes, setDraftTypes] = useState<PickyType[]>(activeTypes);
 
   const diagDate = new Date(child.diagnosedAt).toLocaleDateString('ja-JP', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
+
+  const toggleDraftType = (type: PickyType) => {
+    setDraftTypes(prev =>
+      prev.includes(type)
+        ? prev.filter(t => t !== type)
+        : [...prev, type]
+    );
+  };
+
+  const saveTypes = () => {
+    if (draftTypes.length === 0) return;
+    onUpdate({ activeTypes: draftTypes, mainType: draftTypes[0], subType: draftTypes[1] ?? null });
+    setEditingTypes(false);
+  };
+
+  const cancelEdit = () => {
+    setDraftTypes(activeTypes);
+    setEditingTypes(false);
+  };
 
   return (
     <div className="card" style={{ marginBottom: '16px' }}>
@@ -100,26 +130,17 @@ const ChildCard: React.FC<{
             {child.name}
           </div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            <span style={{
-              backgroundColor: typeColors[child.mainType] + '20',
-              color: typeColors[child.mainType],
-              border: `1px solid ${typeColors[child.mainType]}`,
-              borderRadius: '20px', padding: '3px 10px',
-              fontSize: '0.78rem', fontWeight: 'bold'
-            }}>
-              {typeEmojis[child.mainType]} {typeLabels[child.mainType]}
-            </span>
-            {child.subType && (
-              <span style={{
-                backgroundColor: typeColors[child.subType] + '15',
-                color: typeColors[child.subType],
-                border: `1px dashed ${typeColors[child.subType]}`,
-                borderRadius: '20px', padding: '3px 8px',
-                fontSize: '0.75rem'
+            {activeTypes.map(t => (
+              <span key={t} style={{
+                backgroundColor: typeColors[t] + '20',
+                color: typeColors[t],
+                border: `1px solid ${typeColors[t]}`,
+                borderRadius: '20px', padding: '3px 10px',
+                fontSize: '0.78rem', fontWeight: 'bold'
               }}>
-                {typeEmojis[child.subType]} {typeLabels[child.subType]}
+                {typeEmojis[t]} {typeLabels[t]}
               </span>
-            )}
+            ))}
           </div>
           <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '4px' }}>
             診断日: {diagDate}
@@ -127,8 +148,18 @@ const ChildCard: React.FC<{
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button
+            onClick={() => { setDraftTypes(activeTypes); setEditingTypes(true); }}
+            title="タイプを編集"
+            style={{
+              background: 'none', border: '1.5px solid #ccc', borderRadius: '8px',
+              padding: '6px 8px', cursor: 'pointer', color: '#888'
+            }}
+          >
+            <Edit2 size={16} />
+          </button>
+          <button
             onClick={onDiagnose}
-            title="診断し直す"
+            title="再診断する"
             style={{
               background: 'none', border: '1.5px solid #ccc', borderRadius: '8px',
               padding: '6px 8px', cursor: 'pointer', color: '#888'
@@ -148,6 +179,71 @@ const ChildCard: React.FC<{
           </button>
         </div>
       </div>
+
+      {/* ── タイプ編集パネル（機能⑭） ── */}
+      {editingTypes && (
+        <div style={{
+          backgroundColor: '#f3e5f5', borderRadius: '12px',
+          padding: '14px', marginBottom: '14px',
+          border: '1.5px solid #ce93d8'
+        }}>
+          <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: '#6a1b9a', marginBottom: '10px' }}>
+            ✏️ 偏食タイプをON/OFFで選んでください（複数OK）
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            {ALL_TYPES.map(type => {
+              const isOn = draftTypes.includes(type);
+              return (
+                <button
+                  key={type}
+                  onClick={() => toggleDraftType(type)}
+                  style={{
+                    padding: '7px 14px', borderRadius: '20px', cursor: 'pointer',
+                    fontFamily: 'inherit', fontSize: '0.82rem', fontWeight: 'bold',
+                    border: `2px solid ${typeColors[type]}`,
+                    backgroundColor: isOn ? typeColors[type] : 'white',
+                    color: isOn ? 'white' : typeColors[type],
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  {typeEmojis[type]} {typeLabels[type]}
+                </button>
+              );
+            })}
+          </div>
+          {draftTypes.length === 0 && (
+            <div style={{ fontSize: '0.78rem', color: '#c62828', marginBottom: '8px' }}>
+              ⚠️ 最低1つ選んでください
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={saveTypes}
+              disabled={draftTypes.length === 0}
+              style={{
+                flex: 1, padding: '9px', borderRadius: '10px', cursor: 'pointer',
+                backgroundColor: draftTypes.length > 0 ? '#6a1b9a' : '#ccc',
+                color: 'white', border: 'none', fontFamily: 'inherit',
+                fontWeight: 'bold', fontSize: '0.88rem',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px'
+              }}
+            >
+              <Check size={15} /> 保存する
+            </button>
+            <button
+              onClick={cancelEdit}
+              style={{
+                padding: '9px 14px', borderRadius: '10px', cursor: 'pointer',
+                backgroundColor: 'white', border: '1.5px solid #ccc',
+                fontFamily: 'inherit', fontSize: '0.88rem',
+                display: 'flex', alignItems: 'center', gap: '4px', color: '#666'
+              }}
+            >
+              <X size={14} /> キャンセル
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 今日のおすすめ献立（⑫） */}
       <div style={{
@@ -257,7 +353,7 @@ const ChildCard: React.FC<{
 // ─────────────────────────────────────────────
 const Children: React.FC = () => {
   const navigate = useNavigate();
-  const { children, removeChild } = useChildren();
+  const { children, removeChild, updateChild } = useChildren();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [menuOffsets, setMenuOffsets] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState<'list' | 'sibling'>('list');
@@ -274,6 +370,7 @@ const Children: React.FC = () => {
       [id]: Math.floor(Math.random() * 100) + 1
     }));
   };
+
 
   const selectedChildren = useMemo(
     () => children.filter(c => selectedIds.includes(c.id)),
@@ -347,6 +444,7 @@ const Children: React.FC = () => {
                   child={child}
                   onDelete={() => removeChild(child.id)}
                   onDiagnose={() => navigate('/diagnosis')}
+                  onUpdate={(updates) => updateChild(child.id, updates)}
                   menuOffset={menuOffsets[child.id] || 0}
                   onReshuffle={() => reshuffle(child.id)}
                 />

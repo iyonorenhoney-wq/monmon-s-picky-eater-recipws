@@ -5,6 +5,8 @@ export interface ChildProfile {
   name: string; // 例: 長女、次男、はなちゃん
   mainType: PickyType;
   subType: PickyType | null;
+  // 複数タイプのON/OFF管理（機能⑭）。未設定の場合はmainType+subTypeから自動生成。
+  activeTypes?: PickyType[];
   diagnosedAt: string; // ISO date string
 }
 

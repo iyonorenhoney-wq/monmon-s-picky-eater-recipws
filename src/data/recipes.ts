@@ -1,6 +1,15 @@
 export type PickyType = 'texture' | 'visual' | 'taste' | 'carb_only' | 'protein_veg_reject';
 export type DishType = 'main' | 'side';
 
+// 食べられる形状タグ
+export type TextureTag =
+  | 'paste'      // ペースト状（なめらか・ドロドロ）
+  | 'thickened'  // とろみ系（あんかけ・クリーム系）
+  | 'soft'       // やわらかい（ふわふわ・しっとり）
+  | 'solid'      // 固形（しっかり噛める）
+  | 'crunchy'    // サクサク（軽い食感）
+  | 'carbs';     // 麺・ごはん系（主食タイプ）
+
 export interface RecipeIngredient {
   name: string;
   amount: string;
@@ -20,6 +29,8 @@ export interface Recipe {
   steps: string[];
   nutritionPoint: string;
   pickyPoint: string;
+  // 食べられる形状タグ
+  textureTags?: TextureTag[];
   // 作り置き用
   storageInfo?: { method: string; days: string; reheating: string };
   // カテゴリタグ: 'ultraquick'=超時短, 'family'=家族対応
@@ -58,7 +69,8 @@ const recipes1: Recipe[] = [
       "ラップをせずにレンジで30秒〜40秒加熱し、少し冷ましてサクッとさせます。"
     ],
     nutritionPoint: "お麩は植物性タンパク質が豊富。きなこで鉄分とカルシウムも補えます。",
-    pickyPoint: "ドロドロが苦手な子でも食べやすい、サクサクのラスク風食感です。"
+    pickyPoint: "ドロドロが苦手な子でも食べやすい、サクサクのラスク風食感です。",
+    textureTags: ['crunchy']
   },
   {
     id: "tex-m-2",
@@ -84,7 +96,8 @@ const recipes1: Recipe[] = [
       "しょうゆとみりんをかけて完成です。"
     ],
     nutritionPoint: "豆腐を混ぜることでふわふわになり、タンパク質が美味しく摂れます。",
-    pickyPoint: "パサパサのお肉が苦手でも、豆腐と片栗粉の効果でツルンと飲み込みやすいです。"
+    pickyPoint: "パサパサのお肉が苦手でも、豆腐と片栗粉の効果でツルンと飲み込みやすいです。",
+    textureTags: ['soft', 'thickened']
   },
   {
     id: "tex-m-3",
@@ -110,7 +123,8 @@ const recipes1: Recipe[] = [
       "ケチャップを少し添えて完成です。"
     ],
     nutritionPoint: "お肉だけでなく、野菜の栄養（ビタミンA）も一緒に摂れます。",
-    pickyPoint: "野菜の食感（シャキシャキ）を完全に消すため、すりおろして混ぜ込んでいます。"
+    pickyPoint: "野菜の食感（シャキシャキ）を完全に消すため、すりおろして混ぜ込んでいます。",
+    textureTags: ['soft', 'solid']
   },
   {
     id: "tex-s-4",
@@ -133,7 +147,8 @@ const recipes1: Recipe[] = [
       "冷めるとカリカリになるので、一口大に割って出します。"
     ],
     nutritionPoint: "カルシウム満点でおやつ感覚で栄養補給できます。",
-    pickyPoint: "ねちゃっとした食感が苦手な子も、スナック感覚のパリパリ食感なら食べられます。"
+    pickyPoint: "ねちゃっとした食感が苦手な子も、スナック感覚のパリパリ食感なら食べられます。",
+    textureTags: ['crunchy']
   },
 
   // --- 見た目NGタイプ (色・混ざり・初見拒否) ---
@@ -158,7 +173,8 @@ const recipes1: Recipe[] = [
       "レンジ(600W)で1分加熱して完成です。"
     ],
     nutritionPoint: "かぼちゃのカロテンやコーンの食物繊維が摂取できます。",
-    pickyPoint: "「緑色」の警戒心を解くため、黄色（黄金色）に統一！野菜が混ざっているとは気づきません。"
+    pickyPoint: "「緑色」の警戒心を解くため、黄色（黄金色）に統一！野菜が混ざっているとは気づきません。",
+    textureTags: ['paste', 'thickened']
   },
   {
     id: "vis-m-2",
@@ -184,7 +200,8 @@ const recipes1: Recipe[] = [
       "粉チーズを混ぜてとろみをつけて完成です。"
     ],
     nutritionPoint: "ツナのタンパク質と牛乳のカルシウムが1皿で完結します。",
-    pickyPoint: "色が混ざるのを嫌がる子向け。全体を「白」で統一し、警戒心を下げています。"
+    pickyPoint: "色が混ざるのを嫌がる子向け。全体を「白」で統一し、警戒心を下げています。",
+    textureTags: ['thickened', 'carbs']
   },
   {
     id: "vis-m-3",
@@ -207,7 +224,8 @@ const recipes1: Recipe[] = [
       "ケチャップを少しだけ添えます。"
     ],
     nutritionPoint: "無塩せきウインナーを選ぶことで添加物を抑えられます。",
-    pickyPoint: "「知ってるものしか食べない」子には、見慣れた食材（白ごはん＋ウインナー）で安心させます。"
+    pickyPoint: "「知ってるものしか食べない」子には、見慣れた食材（白ごはん＋ウインナー）で安心させます。",
+    textureTags: ['carbs', 'solid']
   },
 
   // --- 味覚敏感タイプ (苦味・酸味NG) ---
@@ -233,7 +251,8 @@ const recipes1: Recipe[] = [
       "全体に火が通ったら、しょうゆを少し垂らして味をなじませます。"
     ],
     nutritionPoint: "豚肉のビタミンB群で疲労回復。玉ねぎの血液サラサラ成分も摂れます。",
-    pickyPoint: "玉ねぎの辛味や苦味を、りんごの自然な甘みで完全にコーティングし、フルーティにして食べやすくします。"
+    pickyPoint: "玉ねぎの辛味や苦味を、りんごの自然な甘みで完全にコーティングし、フルーティにして食べやすくします。",
+    textureTags: ['soft']
   },
   {
     id: "tas-m-2",
@@ -257,7 +276,8 @@ const recipes1: Recipe[] = [
       "よく混ぜて少し冷ましてから出します。"
     ],
     nutritionPoint: "トマトのリコピンとチーズのカルシウムで風邪予防・骨の成長をサポート。",
-    pickyPoint: "トマトの「酸味」が苦手な子のため、牛乳とチーズでとことんまろやかにして酸味を消しています。"
+    pickyPoint: "トマトの「酸味」が苦手な子のため、牛乳とチーズでとことんまろやかにして酸味を消しています。",
+    textureTags: ['thickened', 'carbs']
   },
   {
     id: "tas-s-3",
@@ -280,7 +300,8 @@ const recipes1: Recipe[] = [
       "水気をぎゅっと絞り、ツナ、マヨネーズ、かつおぶしと和えます。"
     ],
     nutritionPoint: "ピーマンのビタミンCは加熱しても壊れにくいのが特徴です。",
-    pickyPoint: "ピーマンの苦味は「油脂（マヨネーズ）」「旨み（ツナ・かつおぶし）」でマスキングすると格段に食べやすくなります。"
+    pickyPoint: "ピーマンの苦味は「油脂（マヨネーズ）」「旨み（ツナ・かつおぶし）」でマスキングすると格段に食べやすくなります。",
+    textureTags: ['soft']
   },
 
   // --- 白ごはん・炭水化物偏食タイプ ---
@@ -306,7 +327,8 @@ const recipes1: Recipe[] = [
       "ラップを使って小さく、一口サイズに握ります。"
     ],
     nutritionPoint: "タンパク質とカルシウムをご飯にこっそり追加できます。",
-    pickyPoint: "ご飯しか食べない子に。きなこが意外にもご飯に合い、ほんのり甘く風味が出ます。色はごまかせます。"
+    pickyPoint: "ご飯しか食べない子に。きなこが意外にもご飯に合い、ほんのり甘く風味が出ます。色はごまかせます。",
+    textureTags: ['carbs']
   },
   {
     id: "car-m-2",
@@ -332,7 +354,8 @@ const recipes1: Recipe[] = [
       "ひき肉が固まらないように、加熱後すぐによく混ぜてほぐします。"
     ],
     nutritionPoint: "エネルギー源（うどん）と一緒にタンパク質（ひき肉）がスムーズに摂れます。",
-    pickyPoint: "「麺」なら食べる子に、甘辛い味付けのお肉を絡めてずるっと食べさせます。"
+    pickyPoint: "「麺」なら食べる子に、甘辛い味付けのお肉を絡めてずるっと食べさせます。",
+    textureTags: ['carbs']
   },
 
   // --- 野菜・タンパク質拒否タイプ ---
@@ -360,7 +383,8 @@ const recipes1: Recipe[] = [
       "仕上げに青のりと少々の塩を振ります。"
     ],
     nutritionPoint: "高タンパク・低脂質のささみで良質な筋肉を作ります。",
-    pickyPoint: "お肉を嫌がる子でも、「ポテトフライかな？」と思わせるコロコロサイズ＋のり塩味でパクパク食べます。"
+    pickyPoint: "お肉を嫌がる子でも、「ポテトフライかな？」と思わせるコロコロサイズ＋のり塩味でパクパク食べます。",
+    textureTags: ['crunchy', 'solid']
   },
   {
     id: "pro-s-2",
@@ -382,7 +406,8 @@ const recipes1: Recipe[] = [
       "ラップに包んで茶巾絞りのように丸く可愛く形を整えます。"
     ],
     nutritionPoint: "緑黄色野菜の栄養と、チーズのタンパク質が摂れる優秀なデザート風おかずです。",
-    pickyPoint: "野菜の青臭さがなく、甘くてまろやかなのでスイーツ感覚で食べられます。"
+    pickyPoint: "野菜の青臭さがなく、甘くてまろやかなのでスイーツ感覚で食べられます。",
+    textureTags: ['paste', 'soft']
   }
 ];
 
